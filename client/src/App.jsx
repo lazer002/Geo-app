@@ -39,6 +39,7 @@ function App() {
 
   // Send location to backend
   const sendLocation = (latitude, longitude) => {
+    console.log('Sending location:', latitude, longitude);
     axios.post(`${url}/api/location`, {
       latitude,
       longitude,
@@ -56,23 +57,6 @@ function App() {
       });
   };
 
-  // Collect location on mount
-  useEffect(() => {
-    if (navigator.geolocation) {
-      setLocationStatus('Getting your location...');
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          sendLocation(pos.coords.latitude, pos.coords.longitude);
-        },
-        err => {
-          setLocationStatus('Could not get location: ' + err.message);
-        }
-      );
-    } else {
-      setLocationStatus('Geolocation not supported.');
-    }
-    // eslint-disable-next-line
-  }, []);
 
   const fetchLocations = async () => {
     setFetching(true);
@@ -98,7 +82,6 @@ function App() {
 
   useEffect(() => {
     fetchLocations();
-    // eslint-disable-next-line
   }, []);
 
   return (

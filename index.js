@@ -37,7 +37,7 @@ const GPSLocation = mongoose.model('GPSLocation', gpsSchema);
 
 
 app.post('/api/location', async (req, res) => {
-  console.log(req.body);
+  console.log(req.body,'fffff');
   const { latitude, longitude, deviceId, deviceType, osVersion, appVersion } = req.body;
   const userAgent = req.headers['user-agent'];
   const ipAddress = req.connection.remoteAddress;
