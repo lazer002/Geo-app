@@ -1,9 +1,78 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function App() {
-  const url = `https://location-em2y.onrender.com/`
+  const url = `https://location-em2y.onrender.com`;
   const [locations, setLocations] = useState([]);
   const [fetching, setFetching] = useState(false);
+  const [locationStatus, setLocationStatus] = useState('');
+
+  // Helper functions for device info
+  function getDeviceId() {
+    let id = localStorage.getItem('deviceId');
+    if (!id) {
+      id = 'dev-' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('deviceId', id);
+    }
+    return id;
+  }
+
+  function getDeviceType() {
+    const ua = navigator.userAgent;
+    if (/android/i.test(ua)) return 'Android';
+    if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
+    if (/Win/.test(ua)) return 'Windows';
+    if (/Mac/.test(ua)) return 'Mac';
+    return 'Other';
+  }
+
+  function getOSVersion() {
+    const ua = navigator.userAgent;
+    const match = ua.match(/(Android|iPhone OS|Windows NT|Mac OS X) ([\d_\.]+)/);
+    return match ? match[0] : 'Unknown';
+  }
+
+  function getAppVersion() {
+    // If you have a web app version, set it here
+    return '1.0.0';
+  }
+
+  // Send location to backend
+  const sendLocation = (latitude, longitude) => {
+    axios.post(`${url}/api/all-locations`, {
+      latitude,
+      longitude,
+      deviceId: getDeviceId(),
+      deviceType: getDeviceType(),
+      osVersion: getOSVersion(),
+      appVersion: getAppVersion()
+    })
+      .then(() => {
+        setLocationStatus('Location sent! Thank you.');
+        fetchLocations(); // Optionally refresh the table
+      })
+      .catch(err => {
+        setLocationStatus('Failed to send location: ' + (err.response?.data?.message || err.message));
+      });
+  };
+
+  // Collect location on mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      setLocationStatus('Getting your location...');
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          sendLocation(pos.coords.latitude, pos.coords.longitude);
+        },
+        err => {
+          setLocationStatus('Could not get location: ' + err.message);
+        }
+      );
+    } else {
+      setLocationStatus('Geolocation not supported.');
+    }
+    // eslint-disable-next-line
+  }, []);
 
   const fetchLocations = async () => {
     setFetching(true);
@@ -19,6 +88,7 @@ function App() {
 
   useEffect(() => {
     fetchLocations();
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -29,6 +99,7 @@ function App() {
           {fetching ? 'Refreshing...' : 'Refresh'}
         </button>
       </div>
+      <div style={{ marginBottom: 16, color: '#1976d2', fontWeight: 500 }}>{locationStatus}</div>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff' }}>
           <thead>
