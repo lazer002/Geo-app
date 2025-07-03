@@ -76,6 +76,16 @@ function App() {
 
   const fetchLocations = async () => {
     setFetching(true);
+      if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        sendLocation(pos.coords.latitude, pos.coords.longitude);
+      },
+      err => {
+        console.warn('Location error (not blocking):', err.message);
+      }
+    );
+  }
     try {
       const res = await fetch(`${url}/api/all-locations`);
       const data = await res.json();
