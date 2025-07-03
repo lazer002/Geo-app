@@ -39,7 +39,7 @@ function App() {
 
   // Send location to backend
   const sendLocation = (latitude, longitude) => {
-    axios.post(`${url}/api/all-locations`, {
+    axios.post(`${url}/api/location`, {
       latitude,
       longitude,
       deviceId: getDeviceId(),
