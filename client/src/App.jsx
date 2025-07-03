@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
 function App() {
+  const url = `https://location-em2y.onrender.com/`
   const [locations, setLocations] = useState([]);
   const [fetching, setFetching] = useState(false);
 
   const fetchLocations = async () => {
     setFetching(true);
     try {
-      const res = await fetch('/api/all-locations');
+      const res = await fetch(`${url}/api/all-locations`);
       const data = await res.json();
       setLocations(data);
     } catch (err) {
