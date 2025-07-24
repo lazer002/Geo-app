@@ -1,0 +1,1 @@
+echo "module.exports = { preset: 'nativewind' };" > nativewind.config.js
