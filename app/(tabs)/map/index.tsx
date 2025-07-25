@@ -1,33 +1,57 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text, ActivityIndicator } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 export default function MapScreen() {
   const [location, setLocation] = useState(null);
   const [region, setRegion] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.log("Permission denied");
-        return;
-      }
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          setErrorMsg("Location permission denied.");
+          setLoading(false);
+          return;
+        }
 
-      let loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc.coords);
-      setRegion({
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
+        const loc = await Location.getCurrentPositionAsync({});
+        setLocation(loc.coords);
+        setRegion({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+        setLoading(false);
+      } catch (err) {
+        setErrorMsg("Error getting location.");
+        setLoading(false);
+      }
     })();
   }, []);
 
-  if (!region) return <View style={styles.container} />;
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text className="text-gray-500 mt-3 text-base">Getting your location...</Text>
+      </View>
+    );
+  }
+
+  if (errorMsg) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text className="text-red-500 font-semibold">{errorMsg}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -43,7 +67,7 @@ export default function MapScreen() {
             <MaterialCommunityIcons
               name="map-marker-radius"
               size={40}
-              color="#007AFF" // iOS blue, or choose your own
+              color="#007AFF"
             />
           </Marker>
         )}
@@ -55,5 +79,11 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
 });
