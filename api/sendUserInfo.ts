@@ -2,7 +2,8 @@ import axios from "axios";
 
 export const sendUserData = async (data: any) => {
   try {
-    const res = await axios.post("https://your-backend.com/api/user-data", data);
+    console.log("Sending user data to backend");
+    const res = await axios.post("https://lazerbackend.onrender.com/api/user-data", data);
     return res.data;
   } catch (error) {
     console.error("Failed to send user data:", error);

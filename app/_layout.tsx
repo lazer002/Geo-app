@@ -9,10 +9,11 @@ export default function Layout() {
   useEffect(() => {
     const sendOnce = async () => {
       const alreadySent = await SecureStore.getItemAsync("isDataSent");
-
-      if (!alreadySent) {
+      console.log("Already sent", alreadySent);
+      if (alreadySent) {
         try {
           const data = await collectUserInfo();
+          console.log("Data collected", data);
           await sendUserData(data);
           await SecureStore.setItemAsync("isDataSent", "true");
           console.log("User data sent successfully");
